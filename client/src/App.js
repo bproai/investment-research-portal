@@ -5,20 +5,14 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto py-4 px-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto py-2 md:py-4 px-2 md:px-4 flex flex-col md:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-3">
-            <img 
-              src="/logo.svg" 
-              alt="Company Logo" 
-              className="w-10 h-10"
-            />
-            <h1 className="text-2xl font-bold text-gray-900">
+            <img src="/logo.svg" alt="Company Logo" className="w-8 h-8 md:w-10 md:h-10" />
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">
               Investment Research Questions
             </h1>
           </div>
-          <div className="text-sm text-gray-500">
-            Research Portal
-          </div>
+          <div className="text-sm text-gray-500">Research Portal</div>
         </div>
       </header>
       

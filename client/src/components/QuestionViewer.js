@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { ScrollArea } from "../components/ui/scroll-area";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { ScrollArea } from "./ui/scroll-area";
 
 export default function QuestionViewer() {
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showList, setShowList] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch('http://localhost:5001/api/questions');
+        let response;
+        try {
+          response = await fetch('http://localhost:5001/api/questions');
+        } catch {
+          response = await fetch('http://192.168.1.232:5001/api/questions');
+        }
         const data = await response.json();
         setQuestions(data);
         setSelectedQuestion(data[0]);
@@ -22,8 +28,7 @@ export default function QuestionViewer() {
       }
     }
     fetchData();
-  }, []);
-
+   }, []);
   // Rest of your code remains the same...
   // [Previous code continues unchanged from line 21 to the end]
 
@@ -57,20 +62,34 @@ export default function QuestionViewer() {
   }
 
   return (
-    <div className="p-4 max-w-7xl mx-auto bg-gray-50 min-h-screen">
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-4">
+    <div className="p-2 md:p-4 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+      {/* Mobile Toggle */}
+      <div className="md:hidden mb-4 flex justify-between items-center">
+        <button 
+          onClick={() => setShowList(!showList)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          {showList ? 'Show Details' : 'Show List'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        {/* Questions List */}
+        <div className={`md:col-span-4 ${!showList && 'hidden md:block'}`}>
           <h2 className="text-xl font-bold mb-4">Investment Questions</h2>
-          <ScrollArea className="h-[700px]">
+          <ScrollArea className="h-[calc(100vh-200px)]">
             {questions.map((q) => (
               <Card 
                 key={q._id} 
                 className={`mb-3 cursor-pointer transition-all hover:shadow-md ${
                   selectedQuestion?._id === q._id ? 'border-blue-500 shadow-md' : ''
                 }`}
-                onClick={() => setSelectedQuestion(q)}
+                onClick={() => {
+                  setSelectedQuestion(q);
+                  setShowList(false);
+                }}
               >
-                <CardHeader className="p-4">
+                <CardHeader className="p-3">
                   <CardTitle className="text-sm">{q.title}</CardTitle>
                   <CardDescription className="flex gap-2 mt-2">
                     <Badge variant="outline">{q.stage}</Badge>
@@ -82,29 +101,25 @@ export default function QuestionViewer() {
           </ScrollArea>
         </div>
 
+        {/* Detail View */}
         {selectedQuestion && (
-          <div className="col-span-8">
-            <Card className="h-[700px]">
+          <div className={`md:col-span-8 ${showList && 'hidden md:block'}`}>
+            <Card className="h-[calc(100vh-200px)]">
               <CardHeader className="border-b bg-gray-50/50">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-2">
-                    <CardTitle className="text-xl">{selectedQuestion.title}</CardTitle>
-                    <div className="flex gap-2">
-                      <Badge>{selectedQuestion.stage}</Badge>
-                      <Badge variant="secondary">Priority {selectedQuestion.priority}</Badge>
-                      <Badge variant="outline">
-                        {(selectedQuestion.confidence_score * 100).toFixed(0)}% confidence
-                      </Badge>
-                    </div>
+                <div className="flex flex-col gap-2">
+                  <CardTitle className="text-xl">{selectedQuestion.title}</CardTitle>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge>{selectedQuestion.stage}</Badge>
+                    <Badge variant="secondary">Priority {selectedQuestion.priority}</Badge>
+                    <Badge variant="outline">
+                      {(selectedQuestion.confidence_score * 100).toFixed(0)}% confidence
+                    </Badge>
                   </div>
-                  <Badge variant={selectedQuestion.status === 'active' ? 'default' : 'secondary'}>
-                    {selectedQuestion.status}
-                  </Badge>
                 </div>
               </CardHeader>
               
-              <CardContent className="p-6">
-                <ScrollArea className="h-[550px]">
+              <CardContent className="p-4">
+                <ScrollArea className="h-[calc(100vh-350px)]">
                   <div className="space-y-6">
                     <section>
                       <h3 className="text-lg font-semibold mb-3">Description</h3>
