@@ -1,80 +1,63 @@
-# Investment Questions Viewer
+# Investment Research Questions Platform
 
-Web application for managing and viewing investment research questions.
+Web platform for managing and tracking investment research questions, hypotheses, and insights.
 
 ## Features
-- Question list with filtering and sorting
-- Detailed view of questions with formatted content
-- MongoDB integration for data persistence
+- Question tracking with stage/priority management
+- Detailed view with descriptions, hypotheses, and team assignments
+- MongoDB backend for data persistence
 - Real-time updates
+- Team collaboration features
 
-## Setup
+## Tech Stack
+- Frontend: React, Tailwind CSS
+- Backend: Express.js, MongoDB
+- Database: MongoDB (memory_db)
 
-### Prerequisites
-- Node.js >= 14
-- MongoDB >= 4.4
-- npm or yarn
-
-### Installation
+## Installation
 
 ```bash
 # Clone repository
-git clone [repository-url]
+git clone [your-repo-url]
 cd investment-questions
 
-# Install server dependencies
-cd server
-npm install
+# Install dependencies
+npm run install:all
 
-# Install client dependencies
-cd ../client
-npm install
-```
-
-### Configuration
-Create `.env` in server directory:
-```
-MONGODB_URL=mongodb://localhost:27017
-MONGODB_DB_NAME=memory_db
-PORT=5000
-```
-
-### Running the Application
-
-```bash
-# Start MongoDB
-mongod
-
-# Start server (new terminal)
-cd server
-npm start
-
-# Start client (new terminal)
-cd client
+# Start application
 npm start
 ```
 
-Access application at http://localhost:3000
+## Database Schema
+
+### Investment Questions Collection
+- Title: Research question
+- Category: Investment categories
+- Stage: brainstorm/research/analysis/thesis/vetted
+- Priority: 1-5
+- Description: Detailed explanation
+- Hypothesis: Initial investment thesis
+- Team: Assigned analysts
+- Source: Information sources
+- Confidence Score: 0-1 rating
 
 ## Project Structure
 ```
 investment-questions/
-  ├── client/               # React frontend
-  │   ├── src/
-  │   │   ├── components/  
-  │   │   └── App.js       
-  │   └── package.json
-  └── server/              # Express backend
-      ├── routes/          
-      ├── server.js        
-      └── package.json
+├── client/               # React frontend
+│   ├── src/
+│   │   ├── components/  
+│   │   └── App.js       
+│   └── package.json
+└── server/              # Express backend
+    ├── routes/          
+    ├── server.js        
+    └── package.json
 ```
 
-## API Endpoints
-- GET /api/questions - List all questions
-- GET /api/questions/:id - Get question details
-
-## Technologies
-- Frontend: React, Tailwind CSS
-- Backend: Express, MongoDB
-- UI Components: shadcn/ui
+## Environment Setup
+```
+MONGODB_URL=mongodb://localhost:27017
+MONGODB_DB_NAME=memory_db
+PORT=5001
+```
