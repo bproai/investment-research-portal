@@ -181,6 +181,25 @@ export default function QuestionViewer() {
                         </div>
                       </section>
                     )}
+
+                    {selectedQuestion.related_questions && selectedQuestion.related_questions.length > 0 && (
+                      <section>
+                        <h3 className="text-lg font-semibold mb-3 text-gray-800">Related Questions</h3>
+                        <div className="space-y-2">
+                          {questions
+                            .filter(q => selectedQuestion.related_questions.includes(q._id))
+                            .map((q, idx) => (
+                              <div 
+                                key={idx} 
+                                className="p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                                onClick={() => setSelectedQuestion(q)}
+                              >
+                                <p className="text-gray-800">{q.title}</p>
+                              </div>
+                            ))}
+                        </div>
+                      </section>
+                    )}
                   </div>
                 </ScrollArea>
               </CardContent>
