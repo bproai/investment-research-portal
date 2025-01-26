@@ -64,8 +64,9 @@ export default function QuestionViewer() {
             {questions.map((q) => (
               <Card 
                 key={q._id} 
-                className={`mb-3 cursor-pointer transition-all hover:shadow-lg hover:border-blue-200 
-                  ${selectedQuestion?._id === q._id ? 'border-blue-700 shadow-lg bg-blue-50' : ''}`}
+                className={`mb-3 cursor-pointer transition-all duration-200 
+                  hover:scale-[1.02] hover:shadow-lg hover:border-blue-400 
+                  ${selectedQuestion?._id === q._id ? 'border-blue-700 shadow-lg bg-blue-50 scale-[1.02]' : ''}`}
                 onClick={() => {
                   setSelectedQuestion(q);
                   setShowList(false);
