@@ -17,7 +17,7 @@ const QuestionViewer = () => {
         try {
           response = await fetch('http://localhost:5001/api/questions');
         } catch {
-          response = await fetch('http://192.168.1.101:5001/api/questions');
+          response = await fetch('http://192.168.1.232:5001/api/questions');
         }
         const data = await response.json();
         setQuestions(data);
