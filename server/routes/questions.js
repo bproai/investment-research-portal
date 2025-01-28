@@ -26,18 +26,25 @@ router.delete('/questions/:questionId/related/:relatedId', async (req, res) => {
         
         const { questionId, relatedId } = req.params;
         
-        // Remove the related question from the array
-        await collection.updateOne(
+        // Log the document before update
+        const beforeDoc = await collection.findOne({ _id: new ObjectId(questionId) });
+        console.log('Document before update:', beforeDoc);
+        
+        const result = await collection.updateOne(
             { _id: new ObjectId(questionId) },
-            { $pull: { related_questions: relatedId } }
+            { $pull: { related_questions: new ObjectId(relatedId) } }
         );
         
-        // Get the updated question
-        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
-        await client.close();
+        // Log the update result
+        console.log('Update result:', result);
         
+        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
+        console.log('Document after update:', updatedQuestion);
+        
+        await client.close();
         res.json(updatedQuestion);
     } catch (error) {
+        console.error('Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
