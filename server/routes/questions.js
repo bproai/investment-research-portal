@@ -18,6 +18,92 @@ router.get('/questions', async (req, res) => {
     }
 });
 
+// Get latest stock prices
+router.get('/stock-price/:symbol', async (req, res) => {
+    try {
+        const { symbol } = req.params;
+        const db = req.app.locals.db;
+
+        // Get the latest 5 data points from historical_stock_data1
+        const [rows] = await db.query(
+            'SELECT date, open, high, low, close, volume FROM historical_stock_data1 WHERE symbol = ? ORDER BY date DESC LIMIT 5',
+            [symbol]
+        );
+
+        if (rows && rows.length > 0) {
+            // Reverse the array so it's in chronological order
+            const data = rows.reverse();
+            res.json({
+                symbol,
+                data: data.map(row => ({
+                    date: row.date,
+                    open: row.open,
+                    high: row.high,
+                    low: row.low,
+                    close: row.close,
+                    volume: row.volume
+                }))
+            });
+        } else {
+            res.status(404).json({ error: 'Stock not found' });
+        }
+    } catch (error) {
+        console.error('Error getting stock price:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/questions/:questionId/stocks', async (req, res) => {
+    try {
+        const client = await MongoClient.connect(MONGO_URL);
+        const db = client.db(DB_NAME);
+        const collection = db.collection('investment_questions');
+        
+        const { questionId } = req.params;
+        const { symbol } = req.body;
+
+        if (!symbol) {
+            res.status(400).json({ error: 'Stock symbol is required' });
+            return;
+        }
+
+        // Add stock symbol if it doesn't already exist
+        const result = await collection.updateOne(
+            { _id: new ObjectId(questionId) },
+            { $addToSet: { related_stocks: symbol.toUpperCase() } }
+        );
+
+        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
+        await client.close();
+        res.json(updatedQuestion);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.delete('/questions/:questionId/stocks/:symbol', async (req, res) => {
+    try {
+        const client = await MongoClient.connect(MONGO_URL);
+        const db = client.db(DB_NAME);
+        const collection = db.collection('investment_questions');
+        
+        const { questionId, symbol } = req.params;
+        
+        const result = await collection.updateOne(
+            { _id: new ObjectId(questionId) },
+            { $pull: { related_stocks: symbol.toUpperCase() } }
+        );
+        
+        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
+        await client.close();
+        res.json(updatedQuestion);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.delete('/questions/:questionId/related/:relatedId', async (req, res) => {
     try {
         const client = await MongoClient.connect(MONGO_URL);

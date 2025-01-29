@@ -1,18 +1,95 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mysql = require('mysql2/promise');
 const questionsRouter = require('./routes/questions');
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use('/api', questionsRouter);
+async function initializeDatabase() {
+  console.log('Starting database initialization...');
+  console.log('Environment variables:', {
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    database: process.env.MYSQL_DATABASE,
+    port: process.env.MYSQL_PORT
+  });
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
-// Handle favicon specifically 
-app.use('/favicon.ico', express.static(path.join(__dirname, 'public/favicon.ico')));
+  try {
+    // Create MySQL connection pool
+    const pool = mysql.createPool({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+      port: parseInt(process.env.MYSQL_PORT, 10),
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    console.log('Pool created, testing connection...');
+
+    // Test connection
+    const connection = await pool.getConnection();
+    console.log('Successfully connected to MySQL database');
+
+    try {
+      // Get table structure
+      console.log('Querying table structure...');
+      const [tableStructure] = await connection.query('DESCRIBE historical_stock_data1');
+      console.log('\nTable structure for historical_stock_data1:');
+      console.table(tableStructure);
+
+      // Get sample data
+      console.log('Querying sample data...');
+      const [sampleData] = await connection.query('SELECT * FROM historical_stock_data1 LIMIT 5');
+      console.log('\nSample data from historical_stock_data1:');
+      console.table(sampleData);
+    } catch (queryError) {
+      console.error('Error executing queries:', queryError);
+      throw queryError;
+    } finally {
+      connection.release();
+    }
+
+    return pool;
+  } catch (error) {
+    console.error('Database initialization error:', error.message);
+    console.error('Full error:', error);
+    throw error;
+  }
+}
+
+// Initialize app
+async function startServer() {
+  try {
+    console.log('Starting server initialization...');
+    const pool = await initializeDatabase();
+    app.locals.db = pool;
+
+    app.use(cors());
+    app.use(express.json());
+    app.use('/api', questionsRouter);
+
+    // Serve static files from public directory
+    app.use(express.static(path.join(__dirname, 'public')));
+    // Handle favicon specifically 
+    app.use('/favicon.ico', express.static(path.join(__dirname, 'public/favicon.ico')));
+
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  }
+}
+
+// Start the server
+console.log('Initializing server...');
+startServer().catch(err => {
+  console.error('Top level error:', err);
+  process.exit(1);
+});

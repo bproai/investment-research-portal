@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const QuestionViewer = () => {
   const [questions, setQuestions] = useState([]);
@@ -9,6 +10,9 @@ const QuestionViewer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showList, setShowList] = useState(true);
+  const [newStock, setNewStock] = useState('');
+  const [stockData, setStockData] = useState(null);
+  const [hoveredStock, setHoveredStock] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -32,6 +36,105 @@ const QuestionViewer = () => {
     }
     fetchData();
   }, []);
+
+  // Clear newStock when changing questions
+  useEffect(() => {
+    setNewStock('');
+  }, [selectedQuestion?._id]);
+
+  const fetchStockData = async (symbol) => {
+    try {
+      console.log('Fetching data for symbol:', symbol);
+      const baseUrl = window.location.hostname === 'localhost' ? 
+        'http://localhost:5001' : 
+        'http://192.168.1.232:5001';
+
+      const response = await fetch(`${baseUrl}/api/stock-price/${symbol}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch stock data');
+      }
+      const data = await response.json();
+      console.log('Received stock data:', data);
+      setStockData(data);
+    } catch (error) {
+      console.error('Error fetching stock data:', error);
+      setStockData(null);
+    }
+  };
+
+  const handleStockHover = (symbol) => {
+    console.log('Stock hovered:', symbol);
+    setHoveredStock(symbol);
+    fetchStockData(symbol);
+  };
+
+  const handleStockLeave = () => {
+    console.log('Stock hover ended');
+    setHoveredStock(null);
+    setStockData(null);
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleAddStock = async (e) => {
+    e.preventDefault();
+    if (!newStock.trim()) return;
+
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ? 
+        'http://localhost:5001' : 
+        'http://192.168.1.232:5001';
+
+      const response = await fetch(
+        `${baseUrl}/api/questions/${selectedQuestion._id}/stocks`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symbol: newStock.trim() })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedQuestion = await response.json();
+      setSelectedQuestion(updatedQuestion);
+      setQuestions(questions.map(q =>
+        q._id === updatedQuestion._id ? updatedQuestion : q
+      ));
+      setNewStock('');
+    } catch (error) {
+      console.error('Error adding stock:', error);
+    }
+  };
+
+  const handleRemoveStock = async (symbol) => {
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ? 
+        'http://localhost:5001' : 
+        'http://192.168.1.232:5001';
+
+      const response = await fetch(
+        `${baseUrl}/api/questions/${selectedQuestion._id}/stocks/${symbol}`,
+        { method: 'DELETE' }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedQuestion = await response.json();
+      setSelectedQuestion(updatedQuestion);
+      setQuestions(questions.map(q =>
+        q._id === updatedQuestion._id ? updatedQuestion : q
+      ));
+    } catch (error) {
+      console.error('Error removing stock:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -103,6 +206,100 @@ const QuestionViewer = () => {
                   <section>
                     <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Description</h3>
                     <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{selectedQuestion.description}</p>
+                  </section>
+
+                  {/* Related Stocks */}
+                  <section>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Related Stocks</h3>
+                    <div className="space-y-4">
+                      <form onSubmit={handleAddStock} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newStock}
+                          onChange={(e) => setNewStock(e.target.value)}
+                          placeholder="Add stock symbol..."
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                   focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                        />
+                        <button
+                          type="submit"
+                          className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
+                                   hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                        >
+                          Add
+                        </button>
+                      </form>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedQuestion.related_stocks?.map((symbol, idx) => (
+                          <div key={idx} className="group relative inline-block">
+                            <Badge
+                              className="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100
+                                       pr-8 group-hover:pr-8 cursor-pointer"
+                              onMouseEnter={() => handleStockHover(symbol)}
+                              onMouseLeave={handleStockLeave}
+                            >
+                              {symbol}
+                              <button
+                                onClick={() => handleRemoveStock(symbol)}
+                                className="absolute right-2 top-1/2 -translate-y-1/2
+                                         text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200
+                                         opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                ×
+                              </button>
+                            </Badge>
+                            {hoveredStock === symbol && stockData && (
+                              <div className="absolute left-0 top-full mt-2 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4
+                                          border border-gray-200 dark:border-gray-700 whitespace-nowrap min-w-[300px]">
+                                <div className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                  Latest Price: {stockData.data[stockData.data.length - 1].close.toFixed(2)}
+                                </div>
+                                <div className="h-[150px] w-full">
+                                  <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={stockData.data}>
+                                      <defs>
+                                        <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                                        </linearGradient>
+                                      </defs>
+                                      <XAxis 
+                                        dataKey="date" 
+                                        tickFormatter={formatDate}
+                                        stroke="#888888"
+                                        fontSize={10}
+                                      />
+                                      <YAxis 
+                                        domain={['dataMin', 'dataMax']}
+                                        stroke="#888888"
+                                        fontSize={10}
+                                      />
+                                      <Tooltip
+                                        contentStyle={{
+                                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                          border: 'none',
+                                          borderRadius: '4px',
+                                          fontSize: '12px'
+                                        }}
+                                        labelFormatter={formatDate}
+                                      />
+                                      <Area 
+                                        type="monotone" 
+                                        dataKey="close" 
+                                        stroke="#8884d8" 
+                                        fillOpacity={1} 
+                                        fill="url(#colorPrice)" 
+                                      />
+                                    </AreaChart>
+                                  </ResponsiveContainer>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </section>
 
                   {/* Categories */}
@@ -181,20 +378,21 @@ const QuestionViewer = () => {
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
-                                      let response;
-                                      try {
-                                        response = await fetch(
-                                        `http://localhost:5001/api/questions/${selectedQuestion._id}/related/${q._id}`,
+                                      const baseUrl = window.location.hostname === 'localhost' ? 
+                                        'http://localhost:5001' : 
+                                        'http://192.168.1.232:5001';
+
+                                      const response = await fetch(
+                                        `${baseUrl}/api/questions/${selectedQuestion._id}/related/${q._id}`,
                                         { method: 'DELETE' }
-                                      );} catch {
-                                        response = await fetch(
-                                          `http://192.168.1.232:5001/api/questions/${selectedQuestion._id}/related/${q._id}`,
-                                          { method: 'DELETE' }
-                                        );
-                                      }                                      
+                                      );
+
+                                      if (!response.ok) {
+                                        throw new Error(`HTTP error! status: ${response.status}`);
+                                      }
+
                                       const updatedQuestion = await response.json();
                                       setSelectedQuestion(updatedQuestion);
-                                      // Update the questions array with the updated question
                                       setQuestions(questions.map(question =>
                                         question._id === updatedQuestion._id ? updatedQuestion : question
                                       ));
