@@ -16,6 +16,8 @@ const QuestionViewer = () => {
   const [hoveredStock, setHoveredStock] = useState(null);
   const [newNote, setNewNote] = useState('');
   const [noteColor, setNoteColor] = useState('#FEF3C7'); // Default light yellow
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [showStockInput, setShowStockInput] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -272,35 +274,61 @@ const QuestionViewer = () => {
                   </section>
 
                   {/* Sticky Notes */}
-                  <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Sticky Notes</h3>
+                  <section className="group">
+                    <div className="flex justify-between items-center mb-3 relative">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Sticky Notes</h3>
+                      {!showNoteInput && (
+                        <button
+                          onClick={() => setShowNoteInput(true)}
+                          className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                                    text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                        >
+                          + Add
+                        </button>
+                      )}
+                    </div>
                     <div className="space-y-4">
-                      <form onSubmit={handleAddNote} className="space-y-3">
-                        <textarea
-                          value={newNote}
-                          onChange={(e) => setNewNote(e.target.value)}
-                          placeholder="Add a note..."
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                                   focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
-                                   min-h-[100px]"
-                        />
-                        <div className="flex gap-3">
-                          <input
-                            type="color"
-                            value={noteColor}
-                            onChange={(e) => setNoteColor(e.target.value)}
-                            className="h-10 w-20 rounded cursor-pointer"
+                      {showNoteInput ? (
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          handleAddNote(e);
+                          setShowNoteInput(false);
+                        }} className="space-y-3">
+                          <textarea
+                            value={newNote}
+                            onChange={(e) => setNewNote(e.target.value)}
+                            placeholder="Add a note..."
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                                    bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                      min-h-[100px]"
+                            autoFocus
                           />
-                          <button
-                            type="submit"
-                            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
-                                     hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-                          >
-                            Add Note
-                          </button>
-                        </div>
-                      </form>
+                          <div className="flex gap-3">
+                            <input
+                              type="color"
+                              value={noteColor}
+                              onChange={(e) => setNoteColor(e.target.value)}
+                              className="h-10 w-20 rounded cursor-pointer"
+                            />
+                            <button
+                              type="submit"
+                              className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
+                                      hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                            >
+                              Add Note
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowNoteInput(false)}
+                              className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg
+                                      hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </form>
+                      ) : null}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {selectedQuestion.sticky_notes?.map((note) => (
                           <StickyNote
@@ -314,33 +342,62 @@ const QuestionViewer = () => {
                   </section>
 
                   {/* Related Stocks */}
-                  <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Related Stocks</h3>
-                    <div className="space-y-4">
-                      <form onSubmit={handleAddStock} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={newStock}
-                          onChange={(e) => setNewStock(e.target.value)}
-                          placeholder="Add stock symbol..."
-                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                                   focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                        />
+                  <section className="group">
+                    <div className="flex justify-between items-center mb-3 relative">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Related Stocks</h3>
+                      {!showStockInput && (
                         <button
-                          type="submit"
-                          className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
-                                   hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                          onClick={() => setShowStockInput(true)}
+                          className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                                    text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                         >
-                          Add
+                          + Add
                         </button>
-                      </form>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      {showStockInput ? (
+                        <form 
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleAddStock(e);
+                            setShowStockInput(false);
+                          }} 
+                          className="flex gap-2"
+                        >
+                          <input
+                            type="text"
+                            value={newStock}
+                            onChange={(e) => setNewStock(e.target.value)}
+                            placeholder="Add stock symbol..."
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                    bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                            autoFocus
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
+                                    hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                          >
+                            Add
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowStockInput(false)}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg
+                                    hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </form>
+                      ) : null}
                       <div className="flex flex-wrap gap-2">
                         {selectedQuestion.related_stocks?.map((symbol, idx) => (
-                          <div key={idx} className="group relative inline-block">
+                          <div key={idx} className="group/stock relative inline-block">
                             <Badge
                               className="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100
-                                       pr-8 group-hover:pr-8 cursor-pointer"
+                                      pr-8 group-hover/stock:pr-8 cursor-pointer"
                               onMouseEnter={() => handleStockHover(symbol)}
                               onMouseLeave={handleStockLeave}
                             >
@@ -348,8 +405,8 @@ const QuestionViewer = () => {
                               <button
                                 onClick={() => handleRemoveStock(symbol)}
                                 className="absolute right-2 top-1/2 -translate-y-1/2
-                                         text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200
-                                         opacity-0 group-hover:opacity-100 transition-opacity"
+                                        text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200
+                                        opacity-0 group-hover/stock:opacity-100 transition-opacity"
                               >
                                 ×
                               </button>
