@@ -1,9 +1,9 @@
 // client/src/components/ui/badge.js
 export function Badge({ variant = "default", className = "", ...props }) {
     const variants = {
-      default: "bg-blue-500 text-white",
-      secondary: "bg-gray-500 text-white",
-      outline: "border border-gray-300 bg-white text-gray-700"
+      default: "bg-blue-500 text-white dark:bg-blue-400 dark:text-gray-900",
+      secondary: "bg-gray-500 text-white dark:bg-gray-400 dark:text-gray-900",
+      outline: "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
     };
     return (
       <span 

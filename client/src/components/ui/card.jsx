@@ -1,7 +1,7 @@
 // client/src/components/ui/card.jsx
 export function Card({ className, ...props }) {
     return (
-      <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props} />
+      <div className={`rounded-lg border bg-card text-card-foreground shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 ${className}`} {...props} />
     );
   }
   
@@ -10,11 +10,11 @@ export function Card({ className, ...props }) {
   }
   
   export function CardTitle({ className, ...props }) {
-    return <h3 className={`text-lg font-semibold leading-none ${className}`} {...props} />;
+    return <h3 className={`text-lg font-semibold leading-none dark:text-gray-100 ${className}`} {...props} />;
   }
   
   export function CardDescription({ className, ...props }) {
-    return <p className={`text-sm text-muted-foreground ${className}`} {...props} />;
+    return <p className={`text-sm text-muted-foreground dark:text-gray-400 ${className}`} {...props} />;
   }
   
   export function CardContent({ className, ...props }) {

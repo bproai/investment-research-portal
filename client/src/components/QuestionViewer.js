@@ -36,7 +36,7 @@ const QuestionViewer = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-        <div className="text-xl text-gray-500">Loading questions...</div>
+        <div className="text-xl text-gray-500 dark:text-gray-400">Loading questions...</div>
       </div>
     );
   }
@@ -44,7 +44,7 @@ const QuestionViewer = () => {
   if (error) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-        <div className="text-xl text-red-500">{error}</div>
+        <div className="text-xl text-red-500 dark:text-red-400">{error}</div>
       </div>
     );
   }
@@ -58,15 +58,15 @@ const QuestionViewer = () => {
             <Card 
               key={q._id} 
               className={`mb-3 cursor-pointer transition-all duration-200 
-                hover:scale-[1.02] hover:shadow-lg hover:border-blue-400 
-                ${selectedQuestion?._id === q._id ? 'border-blue-700 shadow-lg bg-blue-50 scale-[1.02]' : ''}`}
+                hover:scale-[1.02] hover:shadow-lg hover:border-blue-400 dark:hover:border-blue-500
+                ${selectedQuestion?._id === q._id ? 'border-blue-700 dark:border-blue-500 shadow-lg bg-blue-50 dark:bg-blue-900/50 scale-[1.02]' : 'dark:bg-gray-800 dark:border-gray-700'}`}
               onClick={() => {
                 setSelectedQuestion(q);
                 setShowList(false);
               }}
             >
               <CardHeader className="p-4">
-                <CardTitle className="text-sm font-medium text-gray-900">{q.title}</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">{q.title}</CardTitle>
               </CardHeader>
             </Card>
           ))}
@@ -79,19 +79,19 @@ const QuestionViewer = () => {
           <div className="md:hidden mb-4">
             <button
               onClick={() => setShowList(true)}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
             >
               ← Back to list
             </button>
           </div>
-          <Card className="h-[calc(100vh-200px)] shadow-lg border-gray-200 overflow-auto">
-            <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white p-6">
+          <Card className="h-[calc(100vh-200px)] shadow-lg border-gray-200 dark:border-gray-700 overflow-auto dark:bg-gray-800">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 p-6">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
-                  <CardTitle className="text-xl text-gray-900">{selectedQuestion.title}</CardTitle>
+                  <CardTitle className="text-xl text-gray-900 dark:text-white">{selectedQuestion.title}</CardTitle>
                   <div className="flex gap-2">
-                    <Badge className="bg-blue-600 text-white">{selectedQuestion.stage}</Badge>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">P{selectedQuestion.priority}</Badge>
+                    <Badge className="bg-blue-600 dark:bg-blue-400 text-white dark:text-gray-900">{selectedQuestion.stage}</Badge>
+                    <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-100">P{selectedQuestion.priority}</Badge>
                   </div>
                 </div>
               </div>
@@ -101,16 +101,16 @@ const QuestionViewer = () => {
                 <div className="space-y-6">
                   {/* Description */}
                   <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Description</h3>
-                    <p className="text-gray-600 whitespace-pre-wrap">{selectedQuestion.description}</p>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Description</h3>
+                    <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{selectedQuestion.description}</p>
                   </section>
 
                   {/* Categories */}
                   <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Categories</h3>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Categories</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedQuestion.categories?.map((category, idx) => (
-                        <Badge key={idx} variant="secondary" className="bg-gray-100 text-gray-700">
+                        <Badge key={idx} variant="secondary" className="bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-100">
                           {category}
                         </Badge>
                       ))}
@@ -119,10 +119,10 @@ const QuestionViewer = () => {
 
                   {/* Tags */}
                   <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Tags</h3>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Tags</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedQuestion.tags?.map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="text-gray-600">
+                        <Badge key={idx} variant="outline" className="text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-500">
                           {tag}
                         </Badge>
                       ))}
@@ -131,10 +131,10 @@ const QuestionViewer = () => {
 
                   {/* Team */}
                   <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Team</h3>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Team</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedQuestion.team?.map((member, idx) => (
-                        <Badge key={idx} className="bg-green-100 text-green-800">
+                        <Badge key={idx} className="bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-100">
                           {member}
                         </Badge>
                       ))}
@@ -143,16 +143,16 @@ const QuestionViewer = () => {
 
                   {/* Source and Originator */}
                   <section>
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Origin</h3>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Origin</h3>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600 font-medium">Created by:</span>
-                        <Badge variant="outline">{selectedQuestion.created_by}</Badge>
+                        <span className="text-gray-600 dark:text-gray-300 font-medium">Created by:</span>
+                        <Badge variant="outline" className="text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-500">{selectedQuestion.created_by}</Badge>
                       </div>
                       {selectedQuestion.originator && (
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-600 font-medium">Source:</span>
-                          <Badge variant="outline">{selectedQuestion.originator}</Badge>
+                          <span className="text-gray-600 dark:text-gray-300 font-medium">Source:</span>
+                          <Badge variant="outline" className="text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-500">{selectedQuestion.originator}</Badge>
                         </div>
                       )}
                     </div>
@@ -161,18 +161,18 @@ const QuestionViewer = () => {
                   {/* Related Questions */}
                   {selectedQuestion.related_questions && selectedQuestion.related_questions.length > 0 && (
                     <section>
-                      <h3 className="text-lg font-semibold mb-3 text-gray-800">Related Questions</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Related Questions</h3>
                       <div className="space-y-2">
                         {questions
                           .filter(q => selectedQuestion.related_questions.includes(q._id))
                           .map((q, idx) => (
                             <div
                               key={idx}
-                              className="p-3 border border-gray-300 rounded-lg group"
+                              className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg group dark:bg-gray-800/50"
                             >
                               <div className="flex justify-between items-center group">
                                 <p
-                                  className="text-gray-800 cursor-pointer hover:text-blue-600 flex-grow"
+                                  className="text-gray-800 dark:text-gray-200 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 flex-grow"
                                   onClick={() => setSelectedQuestion(q)}
                                 >
                                   {q.title}
@@ -202,7 +202,7 @@ const QuestionViewer = () => {
                                       console.error('Error removing related question:', error);
                                     }
                                   }}
-                                  className="text-red-600 hover:text-red-800 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                   Remove
                                 </button>
