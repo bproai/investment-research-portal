@@ -306,11 +306,11 @@ const QuestionViewer = () => {
                           />
                           <div className="flex gap-3">
                             <input
-                              type="color"
-                              value={noteColor}
-                              onChange={(e) => setNoteColor(e.target.value)}
-                              className="h-10 w-20 rounded cursor-pointer"
-                            />
+                             type="color"
+                             value={noteColor}
+                             onChange={(e) => setNoteColor(e.target.value)}
+                             className="h-8 w-8 !p-0.5 rounded cursor-pointer"
+                           />
                             <button
                               type="submit"
                               className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
