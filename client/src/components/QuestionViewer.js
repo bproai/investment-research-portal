@@ -417,41 +417,54 @@ const QuestionViewer = () => {
                                 <div className="font-medium text-gray-900 dark:text-gray-100 mb-2">
                                   Latest Price: {stockData.data[stockData.data.length - 1].close.toFixed(2)}
                                 </div>
-                                <div className="h-[150px] w-full">
-                                  <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={stockData.data}>
+                                <div className="h-[150px] w-full transition-all duration-300">
+                                  <ResponsiveContainer width="100%" height="100%" debounce={0}>
+                                    <AreaChart
+                                      data={stockData.data}
+                                      animationDuration={500}
+                                    >
                                       <defs>
                                         <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                                           <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
                                           <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
                                         </linearGradient>
                                       </defs>
-                                      <XAxis 
-                                        dataKey="date" 
+                                      <XAxis
+                                        dataKey="date"
                                         tickFormatter={formatDate}
                                         stroke="#888888"
                                         fontSize={10}
+                                        animationDuration={300}
                                       />
-                                      <YAxis 
+                                      <YAxis
                                         domain={['dataMin', 'dataMax']}
                                         stroke="#888888"
                                         fontSize={10}
+                                        animationDuration={300}
                                       />
                                       <Tooltip
                                         contentStyle={{
                                           backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                           border: 'none',
                                           borderRadius: '4px',
-                                          fontSize: '12px'
+                                          fontSize: '12px',
+                                          transition: 'all 0.2s ease'
                                         }}
                                         labelFormatter={formatDate}
+                                        animationDuration={300}
+                                        animationBegin={0}
                                       />
-                                      <Area 
-                                        type="monotone" 
-                                        dataKey="close" 
-                                        stroke="#8884d8" 
-                                        fillOpacity={1} 
-                                        fill="url(#colorPrice)" 
+                                      <Area
+                                        type="monotone"
+                                        dataKey="close"
+                                        stroke="#8884d8"
+                                        fillOpacity={1}
+                                        fill="url(#colorPrice)"
+                                        dot={{ r: 3, fill: "#8884d8" }}
+                                        activeDot={{ r: 5, fill: "#8884d8", stroke: "white", strokeWidth: 2 }}
+                                        isAnimationActive={true}
+                                        animationDuration={300}
+                                        animationBegin={0}
                                       />
                                     </AreaChart>
                                   </ResponsiveContainer>
