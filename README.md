@@ -8,11 +8,14 @@ Web platform for managing and tracking investment research questions, hypotheses
 - MongoDB backend for data persistence
 - Real-time updates
 - Team collaboration features
+- Dark/light theme support
 
 ## Tech Stack
-- Frontend: React, Tailwind CSS
-- Backend: Express.js, MongoDB
-- Database: MongoDB (memory_db)
+- Frontend: React, Tailwind CSS, shadcn/ui components
+- Backend: Express.js
+- Databases: 
+  - MongoDB (for questions/research data)
+  - MySQL (for stock data)
 
 ## Installation
 
@@ -21,10 +24,23 @@ Web platform for managing and tracking investment research questions, hypotheses
 git clone [your-repo-url]
 cd investment-questions
 
-# Install dependencies
-npm run install:all
+# Install root dependencies
+npm install
 
-# Start application
+# Install client dependencies
+cd client
+npm install
+
+# Install server dependencies
+cd ../server
+npm install
+
+# Set up environment variables
+cp server/.env.sample server/.env
+# Edit server/.env with your configuration
+
+# Return to root and start application
+cd ..
 npm start
 ```
 
@@ -47,17 +63,25 @@ investment-questions/
 ├── client/               # React frontend
 │   ├── src/
 │   │   ├── components/  
+│   │   │   ├── ui/     # shadcn/ui components
+│   │   │   │   ├── badge.js
+│   │   │   │   ├── card.jsx
+│   │   │   │   ├── scroll-area.js
+│   │   │   │   └── theme-toggle.jsx
+│   │   │   └── QuestionViewer.js
 │   │   └── App.js       
 │   └── package.json
 └── server/              # Express backend
     ├── routes/          
-    ├── server.js        
+    ├── server.js
+    ├── .env.sample      # Environment variables template        
     └── package.json
 ```
 
 ## Environment Setup
-```
-MONGODB_URL=mongodb://localhost:27017
-MONGODB_DB_NAME=memory_db
-PORT=5001
-```
+
+Copy the `.env.sample` file in the server directory to create your `.env` file and update it with your configuration values. The sample file includes configuration for:
+
+- MongoDB connection
+- Server settings
+- MySQL database connection
