@@ -3,9 +3,12 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mysql = require('mysql2/promise');
+const { MongoClient } = require('mongodb');
 const questionsRouter = require('./routes/questions');
 
 const app = express();
+const MONGO_URL = "mongodb://localhost:27017";
+const DB_NAME = "memory_db";
 
 async function initializeDatabase() {
   console.log('Starting database initialization...');
@@ -66,8 +69,15 @@ async function initializeDatabase() {
 async function startServer() {
   try {
     console.log('Starting server initialization...');
+    
+    // Initialize MySQL
     const pool = await initializeDatabase();
     app.locals.db = pool;
+
+    // Initialize MongoDB
+    const mongoClient = await MongoClient.connect(MONGO_URL);
+    const mongodb = mongoClient.db(DB_NAME);
+    app.locals.mongodb = mongodb;
 
     app.use(cors());
     app.use(express.json());

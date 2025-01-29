@@ -8,10 +8,8 @@ const DB_NAME = "memory_db";
 
 router.get('/questions', async (req, res) => {
     try {
-        const client = await MongoClient.connect(MONGO_URL);
-        const db = client.db(DB_NAME);
+        const db = req.app.locals.mongodb;
         const questions = await db.collection('investment_questions').find().toArray();
-        await client.close();
         res.json(questions);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -55,8 +53,7 @@ router.get('/stock-price/:symbol', async (req, res) => {
 
 router.post('/questions/:questionId/stocks', async (req, res) => {
     try {
-        const client = await MongoClient.connect(MONGO_URL);
-        const db = client.db(DB_NAME);
+        const db = req.app.locals.mongodb;
         const collection = db.collection('investment_questions');
         
         const { questionId } = req.params;
@@ -73,8 +70,12 @@ router.post('/questions/:questionId/stocks', async (req, res) => {
             { $addToSet: { related_stocks: symbol.toUpperCase() } }
         );
 
+        if (result.matchedCount === 0) {
+            res.status(404).json({ error: 'Question not found' });
+            return;
+        }
+
         const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
-        await client.close();
         res.json(updatedQuestion);
     } catch (error) {
         console.error('Error:', error);
@@ -84,8 +85,7 @@ router.post('/questions/:questionId/stocks', async (req, res) => {
 
 router.delete('/questions/:questionId/stocks/:symbol', async (req, res) => {
     try {
-        const client = await MongoClient.connect(MONGO_URL);
-        const db = client.db(DB_NAME);
+        const db = req.app.locals.mongodb;
         const collection = db.collection('investment_questions');
         
         const { questionId, symbol } = req.params;
@@ -94,9 +94,78 @@ router.delete('/questions/:questionId/stocks/:symbol', async (req, res) => {
             { _id: new ObjectId(questionId) },
             { $pull: { related_stocks: symbol.toUpperCase() } }
         );
+
+        if (result.matchedCount === 0) {
+            res.status(404).json({ error: 'Question not found' });
+            return;
+        }
         
         const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
-        await client.close();
+        res.json(updatedQuestion);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Add a sticky note to a question
+router.post('/questions/:questionId/sticky-notes', async (req, res) => {
+    try {
+        const db = req.app.locals.mongodb;
+        const collection = db.collection('investment_questions');
+        
+        const { questionId } = req.params;
+        const { content, color = '#FEF3C7' } = req.body;
+
+        if (!content) {
+            res.status(400).json({ error: 'Note content is required' });
+            return;
+        }
+
+        const note = {
+            id: new ObjectId(),
+            content,
+            color,
+            created_at: new Date()
+        };
+
+        const result = await collection.updateOne(
+            { _id: new ObjectId(questionId) },
+            { $push: { sticky_notes: note } }
+        );
+
+        if (result.modifiedCount === 0) {
+            res.status(404).json({ error: 'Question not found' });
+            return;
+        }
+
+        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
+        res.json(updatedQuestion);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Delete a sticky note
+router.delete('/questions/:questionId/sticky-notes/:noteId', async (req, res) => {
+    try {
+        const db = req.app.locals.mongodb;
+        const collection = db.collection('investment_questions');
+        
+        const { questionId, noteId } = req.params;
+        
+        const result = await collection.updateOne(
+            { _id: new ObjectId(questionId) },
+            { $pull: { sticky_notes: { id: new ObjectId(noteId) } } }
+        );
+
+        if (result.modifiedCount === 0) {
+            res.status(404).json({ error: 'Question or note not found' });
+            return;
+        }
+
+        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
         res.json(updatedQuestion);
     } catch (error) {
         console.error('Error:', error);

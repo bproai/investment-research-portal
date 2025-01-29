@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
+import StickyNote from "./ui/sticky-note";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const QuestionViewer = () => {
@@ -13,6 +14,8 @@ const QuestionViewer = () => {
   const [newStock, setNewStock] = useState('');
   const [stockData, setStockData] = useState(null);
   const [hoveredStock, setHoveredStock] = useState(null);
+  const [newNote, setNewNote] = useState('');
+  const [noteColor, setNoteColor] = useState('#FEF3C7'); // Default light yellow
 
   useEffect(() => {
     async function fetchData() {
@@ -40,6 +43,8 @@ const QuestionViewer = () => {
   // Clear newStock when changing questions
   useEffect(() => {
     setNewStock('');
+    setNewNote('');
+    setNoteColor('#FEF3C7'); // Reset color to default
   }, [selectedQuestion?._id]);
 
   const fetchStockData = async (symbol) => {
@@ -108,6 +113,64 @@ const QuestionViewer = () => {
       setNewStock('');
     } catch (error) {
       console.error('Error adding stock:', error);
+    }
+  };
+
+  const handleAddNote = async (e) => {
+    e.preventDefault();
+    if (!newNote.trim()) return;
+
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ?
+        'http://localhost:5001' :
+        'http://192.168.1.232:5001';
+
+      const response = await fetch(
+        `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: newNote.trim(), color: noteColor })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedQuestion = await response.json();
+      setSelectedQuestion(updatedQuestion);
+      setQuestions(questions.map(q =>
+        q._id === updatedQuestion._id ? updatedQuestion : q
+      ));
+      setNewNote('');
+    } catch (error) {
+      console.error('Error adding note:', error);
+    }
+  };
+
+  const handleRemoveNote = async (noteId) => {
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ?
+        'http://localhost:5001' :
+        'http://192.168.1.232:5001';
+
+      const response = await fetch(
+        `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes/${noteId}`,
+        { method: 'DELETE' }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedQuestion = await response.json();
+      setSelectedQuestion(updatedQuestion);
+      setQuestions(questions.map(q =>
+        q._id === updatedQuestion._id ? updatedQuestion : q
+      ));
+    } catch (error) {
+      console.error('Error removing note:', error);
     }
   };
 
@@ -206,6 +269,48 @@ const QuestionViewer = () => {
                   <section>
                     <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Description</h3>
                     <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{selectedQuestion.description}</p>
+                  </section>
+
+                  {/* Sticky Notes */}
+                  <section>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Sticky Notes</h3>
+                    <div className="space-y-4">
+                      <form onSubmit={handleAddNote} className="space-y-3">
+                        <textarea
+                          value={newNote}
+                          onChange={(e) => setNewNote(e.target.value)}
+                          placeholder="Add a note..."
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                   focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                   min-h-[100px]"
+                        />
+                        <div className="flex gap-3">
+                          <input
+                            type="color"
+                            value={noteColor}
+                            onChange={(e) => setNoteColor(e.target.value)}
+                            className="h-10 w-20 rounded cursor-pointer"
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg
+                                     hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                          >
+                            Add Note
+                          </button>
+                        </div>
+                      </form>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {selectedQuestion.sticky_notes?.map((note) => (
+                          <StickyNote
+                            key={note.id}
+                            note={note}
+                            onDelete={handleRemoveNote}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </section>
 
                   {/* Related Stocks */}
