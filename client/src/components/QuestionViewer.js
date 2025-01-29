@@ -181,10 +181,17 @@ const QuestionViewer = () => {
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
-                                      const response = await fetch(
+                                      let response;
+                                      try {
+                                        response = await fetch(
                                         `http://localhost:5001/api/questions/${selectedQuestion._id}/related/${q._id}`,
                                         { method: 'DELETE' }
-                                      );
+                                      );} catch {
+                                        response = await fetch(
+                                          `http://192.168.1.232:5001/api/questions/${selectedQuestion._id}/related/${q._id}`,
+                                          { method: 'DELETE' }
+                                        );
+                                      }                                      
                                       const updatedQuestion = await response.json();
                                       setSelectedQuestion(updatedQuestion);
                                       // Update the questions array with the updated question
