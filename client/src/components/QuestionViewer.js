@@ -396,7 +396,7 @@ const QuestionViewer = () => {
                         {selectedQuestion.related_stocks?.map((symbol, idx) => (
                           <div key={idx} className="group/stock relative inline-block">
                             <Badge
-                              className="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100
+                              className="bg-purple-100 dark:bg-purple-900 text-purple-900 dark:text-purple-100
                                       pr-8 group-hover/stock:pr-8 cursor-pointer"
                               onMouseEnter={() => handleStockHover(symbol)}
                               onMouseLeave={handleStockLeave}
