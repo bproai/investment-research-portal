@@ -26,6 +26,11 @@ Web platform for managing and tracking investment research questions, hypotheses
 git clone [your-repo-url]
 cd investment-questions
 
+# Quick Start (Combined Installation and Start)
+npm install && cd client && npm install && cd ../server && npm install && cd .. && npm start
+
+# Or follow step-by-step installation:
+
 # Install root dependencies
 npm install
 
