@@ -5,17 +5,19 @@ Web platform for managing and tracking investment research questions, hypotheses
 ## Features
 - Question tracking with stage/priority management
 - Detailed view with descriptions, hypotheses, and team assignments
+- Interactive sticky notes for research annotations
+- Real-time stock price charts with data point visualization
 - MongoDB backend for data persistence
 - Real-time updates
 - Team collaboration features
 - Dark/light theme support
 
 ## Tech Stack
-- Frontend: React, Tailwind CSS, shadcn/ui components
+- Frontend: React, Tailwind CSS, shadcn/ui components, Recharts
 - Backend: Express.js
-- Databases: 
+- Databases:
   - MongoDB (for questions/research data)
-  - MySQL (for stock data)
+  - MySQL (for stock data and price history)
 
 ## Installation
 
@@ -56,6 +58,8 @@ npm start
 - Team: Assigned analysts
 - Source: Information sources
 - Confidence Score: 0-1 rating
+- Sticky Notes: Array of research annotations with color coding
+- Related Stocks: Array of stock symbols with real-time price data
 
 ## Project Structure
 ```
@@ -67,6 +71,7 @@ investment-questions/
 │   │   │   │   ├── badge.js
 │   │   │   │   ├── card.jsx
 │   │   │   │   ├── scroll-area.js
+│   │   │   │   ├── sticky-note.jsx      # Interactive research notes
 │   │   │   │   └── theme-toggle.jsx
 │   │   │   └── QuestionViewer.js
 │   │   └── App.js       
