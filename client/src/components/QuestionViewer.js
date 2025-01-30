@@ -632,7 +632,7 @@ const QuestionViewer = () => {
                           return (
                             <div
                               key={relatedId}
-                              className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg group dark:bg-gray-800/50"
+                              className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg group/item dark:bg-gray-800/50"
                             >
                               <div className="flex justify-between items-center group">
                                 <p
@@ -667,7 +667,7 @@ const QuestionViewer = () => {
                                       console.error('Error removing related question:', error);
                                     }
                                   }}
-                                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium opacity-0 group-hover/item:opacity-100 transition-opacity"
                                 >
                                   Remove
                                 </button>
