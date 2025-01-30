@@ -173,6 +173,33 @@ router.delete('/questions/:questionId/sticky-notes/:noteId', async (req, res) =>
     }
 });
 
+// Add a related question
+router.post('/questions/:questionId/related/:relatedId', async (req, res) => {
+    try {
+        const db = req.app.locals.mongodb;
+        const collection = db.collection('investment_questions');
+        
+        const { questionId, relatedId } = req.params;
+        
+        // Add the related question ID if it doesn't already exist
+        const result = await collection.updateOne(
+            { _id: new ObjectId(questionId) },
+            { $addToSet: { related_questions: new ObjectId(relatedId) } }
+        );
+
+        if (result.matchedCount === 0) {
+            res.status(404).json({ error: 'Question not found' });
+            return;
+        }
+
+        const updatedQuestion = await collection.findOne({ _id: new ObjectId(questionId) });
+        res.json(updatedQuestion);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.delete('/questions/:questionId/related/:relatedId', async (req, res) => {
     try {
         const client = await MongoClient.connect(MONGO_URL);

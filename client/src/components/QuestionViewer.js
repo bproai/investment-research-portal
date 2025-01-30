@@ -18,6 +18,8 @@ const QuestionViewer = () => {
   const [noteColor, setNoteColor] = useState('#FEF3C7'); // Default light yellow
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showStockInput, setShowStockInput] = useState(false);
+  const [showRelatedInput, setShowRelatedInput] = useState(false);
+  const [questionFilter, setQuestionFilter] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -178,8 +180,8 @@ const QuestionViewer = () => {
 
   const handleRemoveStock = async (symbol) => {
     try {
-      const baseUrl = window.location.hostname === 'localhost' ? 
-        'http://localhost:5001' : 
+      const baseUrl = window.location.hostname === 'localhost' ?
+        'http://localhost:5001' :
         'http://192.168.1.232:5001';
 
       const response = await fetch(
@@ -198,6 +200,35 @@ const QuestionViewer = () => {
       ));
     } catch (error) {
       console.error('Error removing stock:', error);
+    }
+  };
+
+  const handleAddRelatedQuestion = async (relatedId) => {
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ?
+        'http://localhost:5001' :
+        'http://192.168.1.232:5001';
+
+      const response = await fetch(
+        `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedQuestion = await response.json();
+      setSelectedQuestion(updatedQuestion);
+      setQuestions(questions.map(q =>
+        q._id === updatedQuestion._id ? updatedQuestion : q
+      ));
+      setShowRelatedInput(false);
+    } catch (error) {
+      console.error('Error adding related question:', error);
     }
   };
 
@@ -531,34 +562,94 @@ const QuestionViewer = () => {
                   </section>
 
                   {/* Related Questions */}
-                  {selectedQuestion.related_questions && selectedQuestion.related_questions.length > 0 && (
-                    <section>
-                      <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Related Questions</h3>
+                  <section className="group">
+                    <div className="flex justify-between items-center mb-3 relative">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Related Questions</h3>
+                      {!showRelatedInput && (
+                        <button
+                          onClick={() => setShowRelatedInput(true)}
+                          className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                                    text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                        >
+                          + Add
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      {showRelatedInput && (
+                        <div className="space-y-3">
+                          <input
+                            type="text"
+                            value={questionFilter}
+                            onChange={(e) => setQuestionFilter(e.target.value)}
+                            placeholder="Search questions..."
+                            className="w-full px-3 py-2 mb-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                                    bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                          />
+                          <select
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                                    bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                    [&>option]:py-2 [&>option]:px-3 [&>option]:cursor-pointer"
+                            size="6"
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                handleAddRelatedQuestion(e.target.value);
+                              }
+                            }}
+                            value=""
+                          >
+                            <option value="">Select a question...</option>
+                            {questions
+                              .filter(q =>
+                                q._id !== selectedQuestion._id &&
+                                !selectedQuestion.related_questions?.includes(q._id) &&
+                                q.title.toLowerCase().includes(questionFilter.toLowerCase())
+                              )
+                              .map((q) => (
+                                <option key={q._id} value={q._id}>
+                                  {q.title}
+                                </option>
+                              ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => setShowRelatedInput(false)}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg
+                                    hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                       <div className="space-y-2">
-                        {questions
-                          .filter(q => selectedQuestion.related_questions.includes(q._id))
-                          .map((q, idx) => (
+                        {selectedQuestion.related_questions?.map((relatedId) => {
+                          const relatedQuestion = questions.find(q => q._id === relatedId);
+                          if (!relatedQuestion) return null;
+                          
+                          return (
                             <div
-                              key={idx}
+                              key={relatedId}
                               className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg group dark:bg-gray-800/50"
                             >
                               <div className="flex justify-between items-center group">
                                 <p
                                   className="text-gray-800 dark:text-gray-200 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 flex-grow"
-                                  onClick={() => setSelectedQuestion(q)}
+                                  onClick={() => setSelectedQuestion(relatedQuestion)}
                                 >
-                                  {q.title}
+                                  {relatedQuestion.title}
                                 </p>
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
-                                      const baseUrl = window.location.hostname === 'localhost' ? 
-                                        'http://localhost:5001' : 
+                                      const baseUrl = window.location.hostname === 'localhost' ?
+                                        'http://localhost:5001' :
                                         'http://192.168.1.232:5001';
 
                                       const response = await fetch(
-                                        `${baseUrl}/api/questions/${selectedQuestion._id}/related/${q._id}`,
+                                        `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
                                         { method: 'DELETE' }
                                       );
 
@@ -581,10 +672,11 @@ const QuestionViewer = () => {
                                 </button>
                               </div>
                             </div>
-                          ))}
+                          );
+                        })}
                       </div>
-                    </section>
-                  )}
+                    </div>
+                  </section>
                 </div>
               </ScrollArea>
             </CardContent>
