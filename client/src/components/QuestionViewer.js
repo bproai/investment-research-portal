@@ -632,17 +632,16 @@ const QuestionViewer = () => {
                           return (
                             <div
                               key={relatedId}
-                              className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg group/item dark:bg-gray-800/50"
+                              className="relative p-3 border border-gray-300 dark:border-gray-600 rounded-lg group/item dark:bg-gray-800/50"
                             >
-                              <div className="flex justify-between items-center group">
-                                <p
-                                  className="text-gray-800 dark:text-gray-200 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 flex-grow"
-                                  onClick={() => setSelectedQuestion(relatedQuestion)}
-                                >
-                                  {relatedQuestion.title}
-                                </p>
-                                <button
-                                  onClick={async (e) => {
+                              <p
+                                className="text-gray-800 dark:text-gray-200 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+                                onClick={() => setSelectedQuestion(relatedQuestion)}
+                              >
+                                {relatedQuestion.title}
+                              </p>
+                              <button
+                                onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
                                       const baseUrl = window.location.hostname === 'localhost' ?
@@ -667,11 +666,10 @@ const QuestionViewer = () => {
                                       console.error('Error removing related question:', error);
                                     }
                                   }}
-                                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                  className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
-                                  Remove
+                                  ×
                                 </button>
-                              </div>
                             </div>
                           );
                         })}
