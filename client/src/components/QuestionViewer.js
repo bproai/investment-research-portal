@@ -425,10 +425,11 @@ const QuestionViewer = () => {
                       ) : null}
                       <div className="flex flex-wrap gap-2">
                         {selectedQuestion.related_stocks?.map((symbol, idx) => (
-                          <div key={idx} className="group/stock relative inline-block">
+                          <div key={idx} className="group/stock relative inline-block !opacity-100">
                             <Badge
-                              className="bg-purple-100 dark:bg-purple-900 text-purple-900 dark:text-purple-100
-                                      pr-8 group-hover/stock:pr-8 cursor-pointer"
+                              className="bg-purple-700 hover:bg-purple-800 dark:bg-purple-200 dark:hover:bg-purple-300
+                                      text-white dark:text-black font-medium
+                                      pr-8 group-hover/stock:pr-8 cursor-pointer shadow-sm"
                               onMouseEnter={() => handleStockHover(symbol)}
                               onMouseLeave={handleStockLeave}
                             >
