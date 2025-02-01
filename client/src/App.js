@@ -1,6 +1,7 @@
 import React from 'react';
 import QuestionViewer from './components/QuestionViewer';
 import ThemeToggle from './components/ui/theme-toggle';
+import { ToolsMenu } from './components/ui/tools-menu';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <ToolsMenu />
             <ThemeToggle />
             <div className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
               Research Portal
