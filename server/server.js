@@ -2,8 +2,24 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const os = require('os');
 const mysql = require('mysql2/promise');
 const { MongoClient } = require('mongodb');
+
+// Function to get the local network IP address
+function getLocalNetworkIP() {
+  const interfaces = os.networkInterfaces();
+  for (const interfaceName of Object.keys(interfaces)) {
+    const interface = interfaces[interfaceName];
+    for (const config of interface) {
+      // Skip internal and non-IPv4 addresses
+      if (config.family === 'IPv4' && !config.internal) {
+        return config.address;
+      }
+    }
+  }
+  return 'localhost'; // Fallback
+}
 const questionsRouter = require('./routes/questions');
 
 const app = express();
@@ -81,6 +97,15 @@ async function startServer() {
 
     app.use(cors());
     app.use(express.json());
+    
+    // Add endpoint to get server IP and port
+    app.get('/api/server-info', (req, res) => {
+      res.json({
+        ip: getLocalNetworkIP(),
+        port: PORT
+      });
+    });
+
     app.use('/api', questionsRouter);
 
     // Serve static files from public directory

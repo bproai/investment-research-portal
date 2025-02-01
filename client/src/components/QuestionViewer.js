@@ -21,16 +21,44 @@ const QuestionViewer = () => {
   const [showStockInput, setShowStockInput] = useState(false);
   const [showRelatedInput, setShowRelatedInput] = useState(false);
   const [questionFilter, setQuestionFilter] = useState('');
+  const [serverInfo, setServerInfo] = useState(null);
 
+  // Fetch server info on mount
+  useEffect(() => {
+    async function fetchServerInfo() {
+      try {
+        // First try server info endpoint
+        const response = await fetch('http://localhost:5001/api/server-info');
+        const info = await response.json();
+        setServerInfo(info);
+      } catch (error) {
+        console.error('Error fetching server info:', error);
+        // If REACT_APP_HOST is defined, use it as fallback
+        if (process.env.REACT_APP_HOST) {
+          setServerInfo({
+            ip: process.env.REACT_APP_HOST,
+            port: 5001
+          });
+        } else {
+          // Last resort: use URL hostname
+          setServerInfo({
+            ip: window.location.hostname,
+            port: 5001
+          });
+        }
+      }
+    }
+    fetchServerInfo();
+  }, []);
+
+  // Fetch questions after getting server info
   useEffect(() => {
     async function fetchData() {
+      if (!serverInfo) return;
+      
       try {
-        let response;
-        try {
-          response = await fetch('http://localhost:5001/api/questions');
-        } catch {
-          response = await fetch(`http://${process.env.REACT_APP_HOST}:5001/api/questions`);
-        }
+        const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
+        const response = await fetch(`${baseUrl}/api/questions`);
         const data = await response.json();
         setQuestions(data);
         setSelectedQuestion(data[0]);
@@ -43,7 +71,7 @@ const QuestionViewer = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [serverInfo]);
 
   // Clear newStock when changing questions
   useEffect(() => {
@@ -55,10 +83,8 @@ const QuestionViewer = () => {
   const fetchStockData = async (symbol) => {
     try {
       console.log('Fetching data for symbol:', symbol);
-      const baseUrl = window.location.hostname === 'localhost' ? 
-        'http://localhost:5001' : 
-        `http://${process.env.REACT_APP_HOST}:5001`;
-
+      if (!serverInfo) return;
+      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
       const response = await fetch(`${baseUrl}/api/stock-price/${symbol}`);
       if (!response.ok) {
         throw new Error('Failed to fetch stock data');
@@ -93,10 +119,8 @@ const QuestionViewer = () => {
     if (!newStock.trim()) return;
 
     try {
-      const baseUrl = window.location.hostname === 'localhost' ? 
-        'http://localhost:5001' : 
-        `http://${process.env.REACT_APP_HOST}:5001`;
-
+      if (!serverInfo) return;
+      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/stocks`,
         {
@@ -126,10 +150,8 @@ const QuestionViewer = () => {
     if (!newNote.trim()) return;
 
     try {
-      const baseUrl = window.location.hostname === 'localhost' ?
-        'http://localhost:5001' :
-        `http://${process.env.REACT_APP_HOST}:5001`;
-
+      if (!serverInfo) return;
+      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes`,
         {
@@ -156,10 +178,8 @@ const QuestionViewer = () => {
 
   const handleRemoveNote = async (noteId) => {
     try {
-      const baseUrl = window.location.hostname === 'localhost' ?
-        'http://localhost:5001' :
-        `http://${process.env.REACT_APP_HOST}:5001`;
-
+      if (!serverInfo) return;
+      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes/${noteId}`,
         { method: 'DELETE' }
@@ -181,10 +201,8 @@ const QuestionViewer = () => {
 
   const handleRemoveStock = async (symbol) => {
     try {
-      const baseUrl = window.location.hostname === 'localhost' ?
-        'http://localhost:5001' :
-        `http://${process.env.REACT_APP_HOST}:5001`;
-
+      if (!serverInfo) return;
+      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/stocks/${symbol}`,
         { method: 'DELETE' }
@@ -206,10 +224,8 @@ const QuestionViewer = () => {
 
   const handleAddRelatedQuestion = async (relatedId) => {
     try {
-      const baseUrl = window.location.hostname === 'localhost' ?
-        'http://localhost:5001' :
-        `http://${process.env.REACT_APP_HOST}:5001`;
-
+      if (!serverInfo) return;
+      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
         {
@@ -658,10 +674,8 @@ const QuestionViewer = () => {
                                 onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
-                                      const baseUrl = window.location.hostname === 'localhost' ?
-                                        'http://localhost:5001' :
-                                        `http://${process.env.REACT_APP_HOST}:5001`;
-
+                                      if (!serverInfo) return;
+                                      const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
                                       const response = await fetch(
                                         `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
                                         { method: 'DELETE' }
