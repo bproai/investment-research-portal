@@ -11,6 +11,7 @@ const QuestionViewer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showList, setShowList] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newStock, setNewStock] = useState('');
   const [stockData, setStockData] = useState(null);
   const [hoveredStock, setHoveredStock] = useState(null);
@@ -28,7 +29,7 @@ const QuestionViewer = () => {
         try {
           response = await fetch('http://localhost:5001/api/questions');
         } catch {
-          response = await fetch('http://192.168.1.232:5001/api/questions');
+          response = await fetch('http://192.168.1.213:5001/api/questions');
         }
         const data = await response.json();
         setQuestions(data);
@@ -56,7 +57,7 @@ const QuestionViewer = () => {
       console.log('Fetching data for symbol:', symbol);
       const baseUrl = window.location.hostname === 'localhost' ? 
         'http://localhost:5001' : 
-        'http://192.168.1.232:5001';
+        'http://192.168.1.213:5001';
 
       const response = await fetch(`${baseUrl}/api/stock-price/${symbol}`);
       if (!response.ok) {
@@ -94,7 +95,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ? 
         'http://localhost:5001' : 
-        'http://192.168.1.232:5001';
+        'http://192.168.1.213:5001';
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/stocks`,
@@ -127,7 +128,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.232:5001';
+        'http://192.168.1.213:5001';
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes`,
@@ -157,7 +158,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.232:5001';
+        'http://192.168.1.213:5001';
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes/${noteId}`,
@@ -182,7 +183,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.232:5001';
+        'http://192.168.1.213:5001';
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/stocks/${symbol}`,
@@ -207,7 +208,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.232:5001';
+        'http://192.168.1.213:5001';
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
@@ -252,8 +253,21 @@ const QuestionViewer = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Questions List */}
       <div className={`md:block ${showList ? 'block' : 'hidden'}`}>
-        <ScrollArea className="h-[calc(100vh-200px)] overflow-auto">
-          {questions && questions.map((q) => (
+        <div className="mb-4">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search questions..."
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                    bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          />
+        </div>
+        <ScrollArea className="h-[calc(100vh-250px)] overflow-auto">
+          {questions && questions
+            .filter(q => q.title.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((q) => (
             <Card 
               key={q._id} 
               className={`mb-3 cursor-pointer transition-all duration-200 
@@ -646,7 +660,7 @@ const QuestionViewer = () => {
                                     try {
                                       const baseUrl = window.location.hostname === 'localhost' ?
                                         'http://localhost:5001' :
-                                        'http://192.168.1.232:5001';
+                                        'http://192.168.1.213:5001';
 
                                       const response = await fetch(
                                         `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
