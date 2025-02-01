@@ -29,7 +29,7 @@ const QuestionViewer = () => {
         try {
           response = await fetch('http://localhost:5001/api/questions');
         } catch {
-          response = await fetch('http://192.168.1.213:5001/api/questions');
+          response = await fetch(`http://${process.env.REACT_APP_HOST}:5001/api/questions`);
         }
         const data = await response.json();
         setQuestions(data);
@@ -57,7 +57,7 @@ const QuestionViewer = () => {
       console.log('Fetching data for symbol:', symbol);
       const baseUrl = window.location.hostname === 'localhost' ? 
         'http://localhost:5001' : 
-        'http://192.168.1.213:5001';
+        `http://${process.env.REACT_APP_HOST}:5001`;
 
       const response = await fetch(`${baseUrl}/api/stock-price/${symbol}`);
       if (!response.ok) {
@@ -95,7 +95,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ? 
         'http://localhost:5001' : 
-        'http://192.168.1.213:5001';
+        `http://${process.env.REACT_APP_HOST}:5001`;
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/stocks`,
@@ -128,7 +128,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.213:5001';
+        `http://${process.env.REACT_APP_HOST}:5001`;
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes`,
@@ -158,7 +158,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.213:5001';
+        `http://${process.env.REACT_APP_HOST}:5001`;
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/sticky-notes/${noteId}`,
@@ -183,7 +183,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.213:5001';
+        `http://${process.env.REACT_APP_HOST}:5001`;
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/stocks/${symbol}`,
@@ -208,7 +208,7 @@ const QuestionViewer = () => {
     try {
       const baseUrl = window.location.hostname === 'localhost' ?
         'http://localhost:5001' :
-        'http://192.168.1.213:5001';
+        `http://${process.env.REACT_APP_HOST}:5001`;
 
       const response = await fetch(
         `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
@@ -660,7 +660,7 @@ const QuestionViewer = () => {
                                     try {
                                       const baseUrl = window.location.hostname === 'localhost' ?
                                         'http://localhost:5001' :
-                                        'http://192.168.1.213:5001';
+                                        `http://${process.env.REACT_APP_HOST}:5001`;
 
                                       const response = await fetch(
                                         `${baseUrl}/api/questions/${selectedQuestion._id}/related/${relatedId}`,
