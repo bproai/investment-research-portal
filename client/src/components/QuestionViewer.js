@@ -51,8 +51,11 @@ const QuestionViewer = () => {
     fetchServerInfo();
   }, []);
 
-  // Fetch questions after getting server info
+  // Fetch questions after getting server info and refresh periodically
   useEffect(() => {
+    const REFRESH_INTERVAL = 30000; // 30 seconds
+    let intervalId;
+
     async function fetchData() {
       if (!serverInfo) return;
       
@@ -60,8 +63,20 @@ const QuestionViewer = () => {
         const baseUrl = `http://${serverInfo.ip}:${serverInfo.port}`;
         const response = await fetch(`${baseUrl}/api/questions`);
         const data = await response.json();
+        
+        // Update questions list
         setQuestions(data);
-        setSelectedQuestion(data[0]);
+        
+        // Update selected question with fresh data if one is selected
+        if (selectedQuestion) {
+          const updatedSelectedQuestion = data.find(q => q._id === selectedQuestion._id);
+          if (updatedSelectedQuestion) {
+            setSelectedQuestion(updatedSelectedQuestion);
+          }
+        } else {
+          setSelectedQuestion(data[0]);
+        }
+        
         setError(null);
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -70,8 +85,22 @@ const QuestionViewer = () => {
         setLoading(false);
       }
     }
+
+    // Initial fetch
     fetchData();
-  }, [serverInfo]);
+
+    // Set up periodic refresh
+    if (serverInfo) {
+      intervalId = setInterval(fetchData, REFRESH_INTERVAL);
+    }
+
+    // Cleanup interval on unmount or when serverInfo changes
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [serverInfo, selectedQuestion?._id]);
 
   // Clear newStock when changing questions
   useEffect(() => {
