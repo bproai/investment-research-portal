@@ -140,7 +140,11 @@ const QuestionViewer = () => {
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(date).toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric'
+    });    
   };
 
   const handleAddStock = async (e) => {

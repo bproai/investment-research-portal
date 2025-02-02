@@ -22,9 +22,9 @@ router.get('/stock-price/:symbol', async (req, res) => {
         const { symbol } = req.params;
         const db = req.app.locals.db;
 
-        // Get the latest 5 data points from historical_stock_data1
+        // Get the latest 5 data points from historical_stock_data
         const [rows] = await db.query(
-            'SELECT date, open, high, low, close, volume FROM historical_stock_data1 WHERE symbol = ? ORDER BY date DESC LIMIT 5',
+            'SELECT date, open, high, low, close, volume FROM historical_stock_data WHERE symbol = ? AND bar_size="1 day" ORDER BY date DESC LIMIT 5',
             [symbol]
         );
 

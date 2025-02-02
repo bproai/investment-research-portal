@@ -57,14 +57,14 @@ async function initializeDatabase() {
     try {
       // Get table structure
       console.log('Querying table structure...');
-      const [tableStructure] = await connection.query('DESCRIBE historical_stock_data1');
-      console.log('\nTable structure for historical_stock_data1:');
+      const [tableStructure] = await connection.query('DESCRIBE historical_stock_data');
+      console.log('\nTable structure for historical_stock_data:');
       console.table(tableStructure);
 
       // Get sample data
       console.log('Querying sample data...');
-      const [sampleData] = await connection.query('SELECT * FROM historical_stock_data1 LIMIT 5');
-      console.log('\nSample data from historical_stock_data1:');
+      const [sampleData] = await connection.query('SELECT * FROM historical_stock_data LIMIT 5');
+      console.log('\nSample data from historical_stock_data:');
       console.table(sampleData);
     } catch (queryError) {
       console.error('Error executing queries:', queryError);
