@@ -108,6 +108,19 @@ async function startServer() {
 
     app.use('/api', questionsRouter);
 
+    // Add endpoint for stock data date range from stock_data.historical_stock_data table
+    app.get('/api/stock-dates', async (req, res) => {
+      try {
+        const query = 'SELECT MIN(`date`) as minDate, MAX(`date`) as maxDate FROM stock_data.historical_stock_data WHERE bar_size="1 min"';
+        console.log('Executing query:', query);
+        const [rows] = await app.locals.db.query(query);
+        res.json(rows[0]);
+      } catch (error) {
+        console.error('Error fetching stock dates:', error);
+        res.status(500).json({ error: 'Failed to fetch stock dates' });
+      }
+    });
+
     // Serve static files from public directory
     app.use(express.static(path.join(__dirname, 'public')));
     // Handle favicon specifically 
