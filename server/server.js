@@ -111,7 +111,7 @@ async function startServer() {
     // Add endpoint for stock data date range from stock_data.historical_stock_data table
     app.get('/api/stock-dates', async (req, res) => {
       try {
-        const query = 'SELECT MIN(`date`) as minDate, MAX(`date`) as maxDate FROM stock_data.historical_stock_data WHERE bar_size="1 min"';
+        const query = 'SELECT MIN(`date`) as minDate, MAX(`date`) as maxDate FROM stock_data.historical_stock_data WHERE bar_size="1 day"';
         console.log('Executing query:', query);
         const [rows] = await app.locals.db.query(query);
         res.json(rows[0]);
